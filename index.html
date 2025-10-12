@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -266,6 +267,17 @@
     </style>
 </head>
 <body>
+
+
+<!-- Add Loading Screen -->
+    <div id="loadingScreen" style="position:fixed;top:0;left:0;right:0;bottom:0;background:white;display:flex;justify-content:center;align-items:center;z-index:9999;">
+        <div style="text-align:center;">
+            <div style="width:50px;height:50px;border:5px solid #f3f3f3;border-top:5px solid #667eea;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto;"></div>
+            <p style="margin-top:20px;color:#666;">Verifying access...</p>
+        </div>
+    </div>
+
+
     <div class="container">
         <div class="header">
             <h1>🎊 Happy Retirement! 🎊</h1>
@@ -431,5 +443,69 @@
             });
         });
     </script>
+
+  <!-- Add Authentication Script at the END before </body> -->
+    <script>
+        const API_URL = 'https://retirement-auth-server.vercel.app/api'; // Change to your auth server URL
+        const WEBSITE_ID = 'site1';
+        const LOGIN_PAGE = 'https://retirement-auth-server.vercel.app/login.html'; // Your login page URL
+
+        async function checkAuth() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tokenFromUrl = urlParams.get('token');
+            
+            let token = tokenFromUrl || sessionStorage.getItem('authToken');
+            
+            if (!token) {
+                window.location.href = LOGIN_PAGE;
+                return;
+            }
+            
+            if (tokenFromUrl) {
+                sessionStorage.setItem('authToken', tokenFromUrl);
+                sessionStorage.setItem('website', WEBSITE_ID);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: token, website: WEBSITE_ID })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                } else {
+                    sessionStorage.clear();
+                    window.location.href = LOGIN_PAGE;
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
+                sessionStorage.clear();
+                window.location.href = LOGIN_PAGE;
+            }
+        }
+        
+        checkAuth();
+        
+        // Optional: Add logout button functionality
+        function logout() {
+            sessionStorage.clear();
+            window.location.href = LOGIN_PAGE;
+        }
+    </script>
+    
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+
+
+    
 </body>
 </html>
