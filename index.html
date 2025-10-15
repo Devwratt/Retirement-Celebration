@@ -419,29 +419,7 @@
         });
 
         // Memory gallery functionality
-        const memoryBoxes = document.querySelectorAll('.memory-box.add-memory');
-        memoryBoxes.forEach(box => {
-            box.addEventListener('click', function() {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = 'image/*';
-                input.onchange = function(e) {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function(event) {
-                            const img = document.createElement('img');
-                            img.src = event.target.result;
-                            box.innerHTML = '';
-                            box.appendChild(img);
-                            box.classList.remove('add-memory');
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                };
-                input.click();
-            });
-        });
+     
     </script>
     
     
